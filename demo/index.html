@@ -1,0 +1,993 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>和小快小六拍合照 · 快手校招 2026</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;900&display=swap" rel="stylesheet">
+  <style>
+    * { -webkit-tap-highlight-color: transparent; box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg-page: #F2F3F7;
+      --bg-card: #FFFFFF;
+      --text-main: #17171C;
+      --text-mid: #4B4B58;
+      --text-weak: #7A7A85;
+      --border-base: #D4D4D9;
+      --brand-dark: #22222A;
+      --gradient-btn: linear-gradient(269.11deg, #608cff 0.84%, #c188ef 49.85%, #ff4da2 107.03%);
+      --gradient-progress: linear-gradient(90deg, #FFD500, #FFE84D, #FFD500);
+      --shadow-card: 0 0 2px #00000033, 0 1px 3px #00000026;
+    }
+
+    body {
+      font-family: "Noto Sans SC", -apple-system, "SF Pro Display", "SF Pro Text", "Helvetica Neue", sans-serif;
+      background: var(--bg-page);
+      color: var(--text-main);
+      min-height: 100vh;
+      min-height: 100dvh;
+      overflow-x: hidden;
+      -webkit-overflow-scrolling: touch;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── screens ── */
+    .screen { display: none; min-height: 100vh; min-height: 100dvh; flex-direction: column; align-items: center; }
+    .screen.active { display: flex; }
+
+    /* ── button interaction ── */
+    .btn-spring {
+      transition: transform .12s cubic-bezier(.34,1.56,.64,1), opacity .12s;
+    }
+    .btn-spring:active { transform: scale(.96); }
+    .btn-spring:disabled { opacity: .5; cursor: not-allowed; transform: none; }
+
+    /* ── animations ── */
+    @keyframes spin-slow { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+    @keyframes pulse-ring { 0% { transform: scale(1); opacity: .45; } 100% { transform: scale(1.6); opacity: 0; } }
+    @keyframes progress-stripe { from { background-position: 0 0; } to { background-position: 40px 0; } }
+    @keyframes checkPop { 0% { transform: scale(0) rotate(-15deg); } 70% { transform: scale(1.15) rotate(3deg); } 100% { transform: scale(1) rotate(0); } }
+    @keyframes fadeInUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+
+    .fade-in { animation: fadeInUp .5s ease both; }
+
+    /* ── progress bar ── */
+    .progress-bar {
+      height: 6px; border-radius: 9999px;
+      background: var(--gradient-progress);
+      background-size: 40px 6px;
+      animation: progress-stripe .6s linear infinite;
+      transition: width .5s ease;
+    }
+
+    /* ── upload spinner ── */
+    .upload-spinner {
+      width: 18px; height: 18px;
+      border: 2.5px solid rgba(96,140,255,.3);
+      border-top-color: #608cff;
+      border-radius: 50%;
+      animation: spin-slow .6s linear infinite;
+      display: inline-block; vertical-align: middle;
+    }
+
+    /* ── safe area ── */
+    .safe-bottom { padding-bottom: max(env(safe-area-inset-bottom, 0px), 16px); }
+
+    /* ── lang toggle ── */
+    .lang-toggle {
+      display: flex; align-items: center; gap: 4px; cursor: pointer;
+      font-size: 13px; font-weight: 700; color: var(--text-main);
+      user-select: none; -webkit-user-select: none;
+    }
+    .lang-toggle .arrow { transition: transform .2s; }
+  </style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════════
+     SCREEN 1 · 上传/拍照（首屏）
+═══════════════════════════════════════════════════════ -->
+<section id="screen-upload" class="screen active" style="background:var(--bg-page);">
+
+  <!-- 顶部导航 -->
+  <div class="w-full flex items-center justify-between py-3" style="padding-left:20px;padding-right:20px;background:var(--bg-card);border-bottom:1px solid var(--border-base);">
+    <div class="flex items-center">
+      <img src="/static/logo.png" alt="快手校招" style="height:28px;width:auto;display:block;">
+    </div>
+    <div class="flex items-center gap-3">
+      <span class="text-xs" style="color:var(--text-weak);">2026</span>
+      <!-- 语言切换 -->
+      <div class="lang-toggle" id="lang-toggle">
+        <span id="lang-label">EN</span>
+        <svg class="arrow" width="12" height="12" viewBox="0 0 12 12" fill="none" style="color:var(--text-weak);">
+          <path d="M4 3l4 3-4 3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═─ 主内容区 ══ -->
+  <div class="flex-1 flex flex-col items-center w-full pt-8 pb-6 safe-bottom" style="padding-left:20px;padding-right:20px;gap:24px;">
+
+    <!-- 标题区 -->
+    <div class="flex flex-col items-center gap-2 fade-in">
+      <h1 class="text-2xl font-bold leading-tight text-center" style="color:var(--text-main);" data-i18n="title">和小快小六一起拍合照</h1>
+      <p class="text-sm leading-relaxed text-center" style="color:var(--text-mid);" data-i18n="subtitle">上传你的照片，AI 一键生成专属合照</p>
+    </div>
+
+    <!-- ═─ 上传区 ══ -->
+    <div id="upload-bg-empty" class="w-full flex flex-col gap-4 fade-in" style="animation-delay:.1s;">
+
+      <!-- 参考图展示 -->
+      <div class="w-full rounded-xl overflow-hidden" style="aspect-ratio:1/1;background:var(--bg-card);box-shadow:var(--shadow-card);">
+        <img src="/static/sample.jpg"
+             alt="合照示例" class="w-full h-full object-cover" style="object-position:center center;">
+      </div>
+
+      <!-- 两个按钮 -->
+      <div class="flex items-center gap-4 w-full">
+        <label class="flex-1 flex items-center justify-center gap-2 py-3.5 rounded-xl cursor-pointer btn-spring"
+               style="background:#FFD500;color:var(--text-main);font-weight:700;font-size:15px;border-radius:12px;box-shadow:0 2px 8px rgba(255,213,0,.2);">
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+            <rect x="2.5" y="5" width="13" height="10" rx="2" stroke="currentColor" stroke-width="1.4"/>
+            <circle cx="9" cy="10.5" r="2.5" stroke="currentColor" stroke-width="1.4"/>
+            <path d="M6 5l.8-2h4.4l.8 2" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <span data-i18n="btn_camera">拍照</span>
+          <input type="file" accept="image/*" capture="user" class="hidden" id="input-camera">
+        </label>
+        <label class="flex-1 flex items-center justify-center gap-2 py-3.5 rounded-xl cursor-pointer btn-spring"
+               style="background:#FFD500;color:var(--text-main);font-weight:700;font-size:15px;border-radius:12px;box-shadow:0 2px 8px rgba(255,213,0,.2);">
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+            <rect x="2.5" y="3" width="13" height="12" rx="2" stroke="currentColor" stroke-width="1.4"/>
+            <circle cx="6.5" cy="7" r="1.5" fill="currentColor" opacity=".5"/>
+            <path d="M2.5 12l4-3 2.5 2.5 2.5-3 4 4.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <span data-i18n="btn_album">从相册选</span>
+          <input type="file" accept="image/*" class="hidden" id="input-gallery">
+        </label>
+      </div>
+    </div>
+
+    <!-- 有图状态：预览 + 生成按钮 -->
+    <div id="upload-bg-preview" class="w-full flex flex-col gap-4 hidden">
+      <div class="w-full rounded-xl overflow-hidden relative" style="aspect-ratio:3/4;background:var(--bg-card);box-shadow:var(--shadow-card);">
+        <img id="preview-img" src="" alt="预览" class="w-full h-full object-cover">
+      </div>
+      <button id="btn-generate"
+        class="hidden w-full py-3.5 text-base btn-spring font-bold"
+        style="font-size:16px;background:#FFD500;color:var(--text-main);border-radius:12px;box-shadow:0 2px 8px rgba(255,213,0,.2);"
+        data-i18n="btn_generate">✨ 就用这张，生成合照</button>
+      <button id="btn-reselect"
+        class="hidden w-full py-3 rounded-xl text-sm font-medium btn-spring"
+        style="background:var(--bg-card);border:1px solid var(--border-base);color:var(--text-mid);box-shadow:var(--shadow-card);"
+        data-i18n="btn_reselect">重新选择照片</button>
+    </div>
+
+    <!-- 授权 -->
+    <p class="text-center text-xs" style="color:var(--text-weak);" data-i18n="disclaimer">
+      点击生成即同意本活动照片授权声明
+    </p>
+
+    <!-- 万擎运营卡片 -->
+    <a href="https://www.streamlake.com/product/wanqing" target="_blank" rel="noopener noreferrer"
+       class="w-full block btn-spring" style="border-radius:14px;overflow:hidden;display:block;">
+      <img src="/static/banner.png" alt="万擎已正式接入 DeepSeek V4"
+           class="w-full" style="display:block;border-radius:14px;width:100%;height:auto;">
+    </a>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════════════════
+     SCREEN 2 · AI 生成中
+═══════════════════════════════════════════════════════ -->
+<section id="screen-generating" class="screen" style="background:var(--bg-page);justify-content:center;">
+
+  <div class="flex flex-col items-center text-center gap-6 w-full" style="padding-left:20px;padding-right:20px;">
+
+    <div class="relative w-24 h-24 mb-1">
+      <div class="absolute inset-0 rounded-full"
+           style="border:2px solid rgba(96,140,255,.2);animation:pulse-ring 1.6s ease-out infinite;"></div>
+      <div class="absolute inset-0 rounded-full"
+           style="border:2px solid rgba(193,136,239,.15);animation:pulse-ring 1.6s ease-out .4s infinite;"></div>
+      <div class="absolute inset-4 rounded-full flex items-center justify-center"
+           style="background:linear-gradient(135deg,rgba(96,140,255,.1),rgba(193,136,239,.1));">
+        <div style="width:40px;height:40px;border:3px solid rgba(96,140,255,.2);border-top-color:#608cff;border-radius:50%;animation:spin-slow .8s linear infinite;"></div>
+      </div>
+    </div>
+
+    <div>
+      <h2 class="text-xl font-bold mb-1" style="color:var(--text-main);" data-i18n="gen_title">AI 正在生成中…</h2>
+      <p class="text-sm" style="color:var(--text-mid);" id="gen-status-text">小快正在和你摆好 pose ✨</p>
+    </div>
+
+    <div class="text-3xl font-black tabular-nums" style="color:var(--text-main);" id="elapsed-sec">0s</div>
+
+    <div class="w-full max-w-[280px]">
+      <div class="flex justify-between text-xs mb-1.5" style="color:var(--text-weak);">
+        <span data-i18n="gen_progress">合成进度</span>
+        <span id="gen-pct">0%</span>
+      </div>
+      <div class="w-full rounded-full h-1.5 overflow-hidden" style="background:rgba(96,140,255,.08);">
+        <div class="progress-bar" id="gen-bar" style="width:0%"></div>
+      </div>
+    </div>
+
+    <p class="text-xs animate-pulse" style="color:var(--text-weak);" data-i18n="gen_wait">预计等待约 60–120 秒，请不要关闭页面</p>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════════════════
+     SCREEN 3 · 结果预览
+═══════════════════════════════════════════════════════ -->
+<section id="screen-result" class="screen" style="background:var(--bg-page);">
+
+  <div class="flex flex-col items-center pt-10 pb-2 text-center w-full" style="padding-left:20px;padding-right:20px;">
+    <div class="w-12 h-12 rounded-full flex items-center justify-center mb-3"
+         style="background:#34c759;animation:checkPop .5s cubic-bezier(.34,1.56,.64,1) both;">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+        <path d="M5 12l5 5 9-9" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </div>
+    <h2 class="text-xl font-bold mb-0.5" style="color:var(--text-main);" data-i18n="result_title">合照生成成功！</h2>
+    <p class="text-sm" style="color:var(--text-mid);" data-i18n="result_subtitle">你的专属合照已生成</p>
+  </div>
+
+  <div class="flex-1 flex flex-col pb-6 safe-bottom gap-4 w-full" style="padding-left:20px;padding-right:20px;">
+    <div class="rounded-xl overflow-hidden relative" style="aspect-ratio:2/3;background:var(--bg-card);box-shadow:var(--shadow-card);">
+      <img id="result-img" src="" alt="合照结果" class="w-full h-full object-contain"
+           style="display:none;transition:opacity .4s;"
+           onload="this.style.opacity='0';this.style.display='';requestAnimationFrame(()=>{this.style.transition='opacity .5s';this.style.opacity='1';document.getElementById('result-placeholder').style.display='none';})"
+           onerror="document.getElementById('result-placeholder').style.display='flex';">
+      <div id="result-placeholder" class="absolute inset-0 flex flex-col items-center justify-center gap-3"
+           style="background:var(--bg-page);">
+        <p class="text-xs" style="color:var(--text-weak);" data-i18n="result_preview">合照预览图</p>
+      </div>
+      <!-- 水印 -->
+      <div class="absolute bottom-0 left-0 right-0 p-3"
+           style="background:linear-gradient(to top, rgba(0,0,0,.55), transparent);">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-white font-bold text-xs">Kuaishou × 2026</p>
+            <p class="text-white/50 text-[10px]" data-i18n="result_watermark">和小快小六的纪念合照</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 打印告知信息条 -->
+    <div class="rounded-lg px-3 py-2.5" style="background:rgba(59,130,246,.08);border-left:3px solid #3b82f6;">
+      <p class="text-xs font-medium" style="color:#3b82f6;" data-i18n="print_info">🖨️ 如需打印照片，请前往展台打印</p>
+      <p class="text-[10px] mt-0.5" style="color:var(--text-weak);" data-i18n="print_info_sub">现场工作人员会协助您完成打印</p>
+    </div>
+
+    <!-- 保存照片（主按钮） -->
+    <button id="btn-confirm"
+      class="w-full font-bold text-sm py-3.5 btn-spring flex items-center justify-center gap-2"
+      style="background:#FFD500;color:var(--text-main);border-radius:12px;box-shadow:0 2px 8px rgba(255,213,0,.3);">
+      <svg width="16" height="16" viewBox="0 0 1024 1024" fill="currentColor"><path d="M853.333333 853.333333a42.666667 42.666667 0 0 1 0 85.333334H170.666667a42.666667 42.666667 0 0 1 0-85.333334h682.666666zM512 85.504a42.666667 42.666667 0 0 1 42.666667 42.666667v515.370666l204.373333-204.373333a42.666667 42.666667 0 0 1 63.914667 56.277333l-3.584 4.010667-277.376 277.546667a42.666667 42.666667 0 0 1-56.32 3.584l-4.010667-3.541334-277.12-276.650666a42.666667 42.666667 0 0 1 56.234667-63.957334l4.010666 3.541334L469.333333 644.096V128.170667a42.666667 42.666667 0 0 1 42.666667-42.666667z"/></svg>
+      <span data-i18n="btn_confirm">保存照片到本地</span>
+    </button>
+
+    <!-- 换个模版 -->
+    <button id="btn-download"
+      class="w-full rounded-xl py-3 flex items-center justify-center gap-1.5 text-sm font-medium btn-spring"
+      style="background:var(--bg-card);border:1px solid var(--border-base);color:var(--text-main);box-shadow:var(--shadow-card);">
+      <svg width="16" height="16" viewBox="0 0 1024 1024" fill="currentColor"><path d="M504.7 138.1c-91.4 0-175.4 31.4-241.9 83.9l51.6 63.6c52.4-41.1 118.5-65.7 190.3-65.7 170.5 0 308.7 138.2 308.7 308.7 0 21.9-2.3 43.3-6.7 64l79.5 20.1c5.9-27.1 9.1-55.2 9.1-84 0-215.7-174.9-390.6-390.6-390.6zM702.4 765.8c-53.6 44.7-122.5 71.6-197.7 71.6-170.5 0-308.7-138.2-308.7-308.7 0-36.4 6.3-71.3 17.9-103.7l-79.7-20.1c-13 38.9-20.1 80.6-20.1 123.9 0 215.7 174.9 390.6 390.6 390.6 94.8 0 181.7-33.8 249.3-89.9l-51.6-63.7z"/><path d="M173.5 416.4m-40.9 0a40.9 40.9 0 1 0 81.8 0 40.9 40.9 0 1 0-81.8 0Z"/><path d="M286.5 256.4m-40.9 0a40.9 40.9 0 1 0 81.8 0 40.9 40.9 0 1 0-81.8 0Z"/><path d="M727.5 799.4m-40.9 0a40.9 40.9 0 1 0 81.8 0 40.9 40.9 0 1 0-81.8 0Z"/><path d="M845.8 605.8m-40.9 0a40.9 40.9 0 1 0 81.8 0 40.9 40.9 0 1 0-81.8 0Z"/><path d="M33.5 528.4c-14.1-17.7-11.2-43.5 6.5-57.6l108-86.1c17.7-14.1 43.5-11.2 57.6 6.5 14.1 17.7 11.2 43.5-6.5 57.6L91 534.9c-17.7 14.1-43.4 11.2-57.5-6.5z"/><path d="M285.2 556.4c-17.7 14.1-43.5 11.2-57.6-6.5l-86.1-108c-14.1-17.7-11.2-43.5 6.5-57.6 17.7-14.1 43.5-11.2 57.6 6.5l86.1 108c14.1 17.7 11.2 43.5-6.5 57.6zM977.7 483.6c15.4 16.5 14.5 42.5-2 57.9l-101 94.2c-16.5 15.4-42.5 14.5-57.9-2-15.4-16.5-14.5-42.5 2-57.9l101-94.2c16.6-15.4 42.5-14.5 57.9 2z"/><path d="M723.2 474.1c16.5-15.4 42.5-14.5 57.9 2l94.2 101c15.4 16.5 14.5 42.5-2 57.9-16.5 15.4-42.5 14.5-57.9-2l-94.2-101c-15.5-16.6-14.6-42.5 2-57.9z"/></svg>
+      <span data-i18n="btn_download">换个模版</span>
+    </button>
+
+    <!-- 放弃 -->
+    <button id="btn-cancel"
+      class="w-full text-xs py-2 btn-spring"
+      style="color:var(--text-weak);"
+      data-i18n="btn_cancel">放弃，重新上传</button>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════════════════
+     SCREEN 4 · 打印完成
+═══════════════════════════════════════════════════════ -->
+<section id="screen-done" class="screen" style="background:var(--bg-page);justify-content:center;">
+
+  <div class="flex flex-col items-center text-center gap-5 w-full" style="padding-left:20px;padding-right:20px;">
+    <div class="w-14 h-14 rounded-full flex items-center justify-center"
+         style="background:#34c759;animation:checkPop .5s cubic-bezier(.34,1.56,.64,1) both;">
+      <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+        <path d="M6 14l6 6 10-10" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </div>
+    <div>
+      <h2 class="text-xl font-bold mb-1" style="color:var(--text-main);" data-i18n="done_title">🎉 已提交打印！</h2>
+      <p class="text-sm" style="color:var(--text-mid);" data-i18n="done_subtitle">请前往展台领取你的专属照片</p>
+    </div>
+
+    <div class="w-full rounded-xl p-3.5 text-sm leading-relaxed text-left"
+         style="background:var(--bg-card);border:1px solid var(--border-base);box-shadow:var(--shadow-card);">
+      <span style="color:#608cff;">📸</span> <span style="color:var(--text-main);" data-i18n="done_info">打印照片已提交，请凭此页面到展台领取</span><br/>
+      <span style="color:var(--text-weak);" data-i18n="done_info_sub">现场工作人员会协助您完成打印</span>
+    </div>
+
+    <button id="btn-new-photo"
+      class="w-full max-w-[260px] py-3.5 text-sm font-bold btn-spring"
+      style="background:#FFD500;color:var(--text-main);border-radius:12px;box-shadow:0 2px 8px rgba(255,213,0,.2);"
+      data-i18n="btn_new_photo">再拍一张 →</button>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════════════════
+     SCREEN 5 · 错误
+═══════════════════════════════════════════════════════ -->
+<section id="screen-error" class="screen" style="background:var(--bg-page);justify-content:center;">
+  <div class="flex flex-col items-center text-center gap-4" style="padding-left:20px;padding-right:20px;">
+    <div class="text-4xl">😵</div>
+    <h2 class="text-lg font-bold" style="color:var(--text-main);" data-i18n="error_title">生成遇到问题</h2>
+    <p class="text-sm" style="color:var(--text-mid);" id="error-msg">网络异常，请检查连接后重试</p>
+    <button id="btn-retry"
+      class="px-7 py-3 text-sm font-bold btn-spring"
+      style="background:#FFD500;color:var(--text-main);border-radius:12px;box-shadow:0 2px 8px rgba(255,213,0,.2);"
+      data-i18n="btn_retry">重新尝试</button>
+    <button id="btn-error-back" class="text-xs btn-spring" style="color:var(--text-weak);" data-i18n="btn_back">返回首页</button>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════════════════
+     JAVASCRIPT — i18n + 真实后端 API + 预览模式
+═══════════════════════════════════════════════════════ -->
+<script>
+// ── helpers ─────────────────────────────
+const $ = id => document.getElementById(id);
+
+// ── i18n ───────────────────────────────────────────
+const i18n = {
+  zh: {
+    nav_title:       '快手校招',
+    title:           '和小快小六一起拍合照',
+    subtitle:        '上传你的照片，AI 一键生成专属合照',
+    btn_camera:      '拍照',
+    btn_album:       '从相册选',
+    btn_generate:    '✨ 就用这张，生成合照',
+    btn_reselect:    '重新选择照片',
+    disclaimer:      '点击生成即同意本活动照片授权声明',
+    gen_title:       'AI 正在生成中…',
+    gen_progress:    '合成进度',
+    gen_wait:        '预计等待约 60–120 秒，请不要关闭页面',
+    result_title:    '合照生成成功！',
+    result_subtitle: '你的专属合照已生成',
+    result_preview:  '合照预览图',
+    result_watermark:'和小快小六的纪念合照',
+    print_info:      '🖨️ 如需打印照片，请前往展台打印',
+    print_info_sub:  '现场工作人员会协助您完成打印',
+    btn_confirm:     '保存照片到本地',
+    btn_download:    '换个模版',
+    btn_cancel:      '放弃，重新上传',
+    done_title:      '🎉 已提交打印！',
+    done_subtitle:   '请前往展台领取你的专属照片',
+    done_info:       '打印照片已提交，请凭此页面到展台领取',
+    done_info_sub:   '现场工作人员会协助您完成打印',
+    btn_new_photo:   '再拍一张 →',
+    error_title:     '生成遇到问题',
+    btn_retry:       '重新尝试',
+    btn_back:        '返回首页',
+    toast_preview:   '📱 预览模式（无后端）',
+    toast_upload_ok: '✅ 上传成功，AI 开始生成',
+    toast_upload_fail:'上传失败，请重试',
+    toast_uploading: '上传中…',
+    toast_confirm_fail:'确认失败，请重试',
+    toast_network_err:'网络错误，请重试',
+    toast_submitting: '提交中…',
+    toast_cancelled:  '⚠️ 本次生成已取消（超时）',
+    toast_abandoned:  '↩ 已放弃，请重新上传',
+    toast_no_photo:   '暂无可下载的照片',
+    toast_downloaded:  '📸 长按图片保存',
+    gen_status: [
+      '小快正在换上最靓的衣服 👗',
+      '正在挑选最佳合照角度 📸',
+      'AI 魔法正在施法中 ✨',
+      '小六正在帮你调整发型 💇',
+      '正在为你生成专属背景 🌟',
+      '像素级细节处理中，稍等一下 🔍',
+      '稳住，AI 正全力搞创作呢 🧑‍🎨',
+      '快好了！小快说让你再等亿下 🐣',
+    ],
+    gen_status_final: '合成精度 99.9%，最后润色中 🎨',
+  },
+  en: {
+    nav_title:       'Kuaishou Campus',
+    title:           'Take a Photo with XiaoKuai & XiaoLiu',
+    subtitle:        'Upload your photo, AI generates a group photo instantly',
+    btn_camera:      'Camera',
+    btn_album:       'Album',
+    btn_generate:    '✨ Generate Group Photo',
+    btn_reselect:    'Reselect Photo',
+    disclaimer:      'By generating, you agree to the photo usage policy',
+    gen_title:        'AI is generating…',
+    gen_progress:     'Progress',
+    gen_wait:         'Estimated 60–120 seconds, please do not close the page',
+    result_title:     'Group Photo Ready!',
+    result_subtitle:  'Your exclusive group photo is generated',
+    result_preview:   'Group photo preview',
+    result_watermark: 'A memorable photo with XiaoKuai & XiaoLiu',
+    print_info:      '🖨️ For printing, please visit the booth',
+    print_info_sub:  'Staff on site will assist you',
+    btn_confirm:     'Save Photo',
+    btn_download:    'New Template',
+    btn_cancel:      'Cancel & Re-upload',
+    done_title:      '🎉 Print Submitted!',
+    done_subtitle:   'Please pick up your photo at the booth',
+    done_info:       'Print request submitted. Show this page at the booth',
+    done_info_sub:   'Staff on site will assist you',
+    btn_new_photo:   'Take Another →',
+    error_title:     'Generation Failed',
+    btn_retry:       'Try Again',
+    btn_back:        'Back to Home',
+    toast_preview:   '📱 Preview mode (no backend)',
+    toast_upload_ok: '✅ Upload successful, AI generating',
+    toast_upload_fail:'Upload failed, please retry',
+    toast_uploading: 'Uploading…',
+    toast_confirm_fail:'Confirm failed, please retry',
+    toast_network_err:'Network error, please retry',
+    toast_submitting: 'Submitting…',
+    toast_cancelled:  '⚠️ Generation cancelled (timeout)',
+    toast_abandoned:  '↩ Abandoned, please re-upload',
+    toast_no_photo:   'No photo available for download',
+    toast_downloaded:  '📸 Long press the photo to save',
+    gen_status: [
+      'XiaoKuai is picking the best outfit 👗',
+      'Finding the perfect angle 📸',
+      'AI magic is casting ✨',
+      'XiaoLiu is adjusting your hair 💇',
+      'Generating your exclusive background 🌟',
+      'Pixel-perfect details in progress… 🔍',
+      'Hang tight, the AI is in full creative mode 🧑‍🎨',
+      'Almost there! XiaoKuai says just a lil longer 🐣',
+    ],
+    gen_status_final: '99.9% done, adding final touches 🎨',
+  },
+};
+
+let currentLang = 'zh';
+
+function setLang(lang) {
+  currentLang = lang;
+  const dict = i18n[lang];
+  // 更新所有 data-i18n 元素
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.getAttribute('data-i18n');
+    if (dict[key]) el.textContent = dict[key];
+  });
+  // 更新语言切换按钮
+  $('lang-label').textContent = lang === 'zh' ? 'EN' : '中';
+  // 更新 html lang
+  document.documentElement.lang = lang === 'zh' ? 'zh-CN' : 'en';
+}
+
+$('lang-toggle').addEventListener('click', () => {
+  setLang(currentLang === 'zh' ? 'en' : 'zh');
+});
+
+function t(key) { return i18n[currentLang][key] || key; }
+function tArr(key) { return i18n[currentLang][key] || []; }
+
+// ── state ──────────────────────────────
+const state = {
+  selectedFile: null,
+  previewURL:   null,
+  sessionId:    null,
+  resultUrl:    null,   // 当前结果图 URL（用于下载）
+  pollTimer:    null,
+  genTimer:     null,
+  elapsedTimer: null,
+  msgTimer:     null,
+  elapsedSec:   0,
+};
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  $(id).classList.add('active');
+  window.scrollTo(0, 0);
+}
+
+// ── Toast ──────────────────────────────
+function showToast(msg) {
+  const el = document.createElement('div');
+  el.textContent = msg;
+  el.style.cssText = 'position:fixed;bottom:max(env(safe-area-inset-bottom,0px),20px);left:50%;transform:translateX(-50%);background:rgba(23,23,28,.88);color:#fff;padding:10px 18px;border-radius:40px;font-size:12px;z-index:999;white-space:nowrap;opacity:0;transition:opacity .3s;backdrop-filter:blur(8px);';
+  document.body.appendChild(el);
+  requestAnimationFrame(() => el.style.opacity = '1');
+  setTimeout(() => {
+    el.style.opacity = '0';
+    setTimeout(() => el.remove(), 300);
+  }, 2200);
+}
+
+// ════════════════════════════════════════
+//  SCREEN 1 — 上传/拍照
+// ════════════════════════════════════════
+
+function handleFileSelect(file) {
+  if (!file || !file.type.startsWith('image/')) return;
+  state.selectedFile = file;
+  const url = URL.createObjectURL(file);
+  state.previewURL = url;
+
+  $('preview-img').src = url;
+  $('upload-bg-empty').classList.add('hidden');
+  $('upload-bg-preview').classList.remove('hidden');
+  $('btn-reselect').classList.remove('hidden');
+  $('btn-generate').classList.remove('hidden');
+}
+
+$('input-camera').addEventListener('change', e => {
+  handleFileSelect(e.target.files[0]);
+  e.target.value = '';
+});
+$('input-gallery').addEventListener('change', e => {
+  handleFileSelect(e.target.files[0]);
+  e.target.value = '';
+});
+
+$('btn-reselect').addEventListener('click', resetUpload);
+
+function resetUpload() {
+  state.selectedFile = null;
+  if (state.previewURL) URL.revokeObjectURL(state.previewURL);
+  state.previewURL = null;
+  $('preview-img').src = '';
+
+  $('upload-bg-empty').classList.remove('hidden');
+  $('upload-bg-preview').classList.add('hidden');
+  $('btn-reselect').classList.add('hidden');
+  $('btn-generate').classList.add('hidden');
+  $('btn-generate').disabled = false;
+  $('btn-generate').textContent = t('btn_generate');
+}
+
+$('btn-generate').addEventListener('click', doUpload);
+
+// ════════════════════════════════════════
+//  上传 — 自动检测后端，无后端走预览模式
+// ════════════════════════════════════════
+
+const IS_PREVIEW = window.location.protocol === 'file:' || window.location.hostname === '';
+
+/**
+ * 前端压缩图片：限制最大边长 1600px，quality 0.85
+ * 手机大图 3-5MB → 压缩后 200-500KB，隧道上传快 6-10 倍
+ */
+function compressImage(file, maxSize = 1600, quality = 0.85) {
+  return new Promise((resolve) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const img = new Image();
+      img.onload = () => {
+        let w = img.width, h = img.height;
+        if (w > maxSize || h > maxSize) {
+          if (w > h) { h = Math.round(h * maxSize / w); w = maxSize; }
+          else       { w = Math.round(w * maxSize / h); h = maxSize; }
+        }
+        const canvas = document.createElement('canvas');
+        canvas.width = w; canvas.height = h;
+        canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+        canvas.toBlob((blob) => {
+          // 如果压缩后反而更大（小图），直接用原图
+          resolve(blob.size < file.size ? blob : file);
+        }, 'image/jpeg', quality);
+      };
+      img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+async function doUpload() {
+  if (!state.selectedFile) return;
+
+  const btn = $('btn-generate');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="upload-spinner"></span> ' + t('toast_uploading');
+
+  if (IS_PREVIEW) {
+    showToast(t('toast_preview'));
+    setTimeout(() => {
+      showScreen('screen-generating');
+      startElapsed();
+      startVisualProgress();
+      setTimeout(() => {
+        clearInterval(state.elapsedTimer); clearInterval(state.msgTimer); state.msgTimer = null;
+        cancelAnimationFrame(state.genTimer); clearTimeout(state.genTimer); state.genTimer = null;
+        $('gen-bar').style.width = '100%';
+        $('gen-pct').textContent = '100%';
+        setTimeout(() => showResult(state.previewURL), 500);
+      }, 8000);
+    }, 600);
+    return;
+  }
+
+  // 前端压缩：大图压到 1600px 以内，隧道上传快 6-10 倍
+  let uploadFile = state.selectedFile;
+  if (state.selectedFile.size > 500 * 1024) {
+    btn.innerHTML = '<span class="upload-spinner"></span> 压缩图片中...';
+    uploadFile = await compressImage(state.selectedFile);
+  }
+
+  const form = new FormData();
+  form.append('image', uploadFile, state.selectedFile.name);
+
+  try {
+    const resp = await fetch('/upload', { method: 'POST', body: form });
+    const data = await resp.json();
+    if (!data.ok) throw new Error(data.msg || t('toast_upload_fail'));
+
+    state.sessionId = data.session_id;
+    localStorage.setItem('ks_session_id', data.session_id);  // 存本地，断线可恢复
+    showToast(t('toast_upload_ok'));
+
+    showScreen('screen-generating');
+    startElapsed();
+    startVisualProgress();
+    startPolling();
+
+  } catch (e) {
+    btn.disabled = false;
+    btn.textContent = t('btn_generate');
+    showToast('❌ ' + (e.message || t('toast_upload_fail')));
+  }
+}
+
+// ════════════════════════════════════════
+//  SCREEN 2 — 生成中
+// ════════════════════════════════════════
+
+function startElapsed() {
+  state.elapsedSec = 0;
+  $('elapsed-sec').textContent = '0s';
+  clearInterval(state.elapsedTimer); clearInterval(state.msgTimer); state.msgTimer = null;
+  state.elapsedTimer = setInterval(() => {
+    state.elapsedSec++;
+    $('elapsed-sec').textContent = state.elapsedSec + 's';
+  }, 1000);
+}
+
+function startVisualProgress() {
+  const msgs = tArr('gen_status');
+  let pct = 0;
+
+  // ── 状态文字：独立循环，每 2s 换一条，60s 后固定显示 final 文案 ──
+  const finalMsg = t('gen_status_final') || msgs[msgs.length - 1];
+  $('gen-status-text').textContent = msgs[0] || '';
+  const msgStartTime = Date.now();
+  const MSG_CYCLE_MS = 2000;     // 每条显示 2s
+  const MSG_LOCK_MS  = 60000;    // 60s 后固定 final 文案
+  let msgCurIdx = 0;
+  state.msgTimer = setInterval(() => {
+    const elapsed = Date.now() - msgStartTime;
+    if (elapsed >= MSG_LOCK_MS) {
+      $('gen-status-text').textContent = finalMsg;
+      clearInterval(state.msgTimer);
+      state.msgTimer = null;
+      return;
+    }
+    msgCurIdx = (msgCurIdx + 1) % msgs.length;
+    $('gen-status-text').textContent = msgs[msgCurIdx];
+  }, MSG_CYCLE_MS);
+
+  // 模拟真实 AI 处理进度：分阶段突发 + 停顿 + 微抖动
+  const phases = [
+    { target: 12, minT: 1200,  maxT: 2800  },  // 快速初始化
+    { target: 28, minT: 4000,  maxT: 7000  },  // 第一个处理阶段
+    { target: 31, minT: 500,   maxT: 1200  },  // 小跳
+    { target: 47, minT: 6000,  maxT: 11000 },  // 耗时的推理阶段
+    { target: 52, minT: 800,   maxT: 2000  },  // 小跳
+    { target: 63, minT: 5000,  maxT: 9000  },  // 图像合成
+    { target: 67, minT: 1000,  maxT: 2500  },  // 小跳
+    { target: 74, minT: 4000,  maxT: 8000  },  // 细节渲染
+    { target: 80, minT: 3000,  maxT: 6000  },  // 后处理
+    { target: 85, minT: 4000,  maxT: 8000  },  // 压缩输出
+    { target: 88, minT: 2000,  maxT: 5000  },  // 等待就绪
+  ];
+  let phaseIdx = 0;
+
+  function runPhase() {
+    if (phaseIdx >= phases.length) return;
+    const phase = phases[phaseIdx];
+    const targetPct = phase.target;
+    const duration = phase.minT + Math.random() * (phase.maxT - phase.minT);
+    const startPct = pct;
+    const startTime = performance.now();
+
+    function tick(now) {
+      if (state.genTimer === null) return; // 已被取消
+      const elapsed = now - startTime;
+      const rawProgress = Math.min(elapsed / duration, 1);
+      // ease-in-out cubic，模拟真实网络突发感
+      const eased = rawProgress < 0.5
+        ? 4 * rawProgress * rawProgress * rawProgress
+        : 1 - Math.pow(-2 * rawProgress + 2, 3) / 2;
+      const smoothPct = Math.min(startPct + (targetPct - startPct) * eased, 88);
+      // 进度条加微抖动（±0.3%），数字和文字用平滑值
+      const barPct = smoothPct + (Math.random() - 0.5) * 0.6;
+      pct = smoothPct;
+      $('gen-bar').style.width = Math.min(barPct, 88) + '%';
+      $('gen-pct').textContent = Math.round(smoothPct) + '%';
+
+      if (rawProgress < 1) {
+        state.genTimer = requestAnimationFrame(tick);
+      } else {
+        pct = targetPct;
+        phaseIdx++;
+        if (phaseIdx < phases.length) {
+          // 阶段间随机停顿 200-1500ms，模拟服务器响应等待
+          const pause = 200 + Math.random() * 1300;
+          state.genTimer = setTimeout(() => {
+            state.genTimer = requestAnimationFrame(runPhase);
+          }, pause);
+        }
+      }
+    }
+    state.genTimer = requestAnimationFrame(tick);
+  }
+  runPhase();
+}
+
+function startPolling() {
+  clearInterval(state.pollTimer);
+  state.pollTimer = setInterval(async () => {
+    if (!state.sessionId) return;
+    try {
+      const resp = await fetch('/result/' + state.sessionId);
+      const data = await resp.json();
+
+      if (data.status === 'ready') {
+        clearInterval(state.pollTimer);
+        clearInterval(state.elapsedTimer); clearInterval(state.msgTimer); state.msgTimer = null;
+        cancelAnimationFrame(state.genTimer); clearTimeout(state.genTimer); state.genTimer = null;
+        $('gen-bar').style.width = '100%';
+        $('gen-pct').textContent = '100%';
+        // 立即切到结果页显示 spinner，后台 fetch 图片为 blob 再显示
+        // 图片完整缓存到内存后才 assign src，彻底消除隧道慢导致的白屏
+        showScreen('screen-result');
+        ;(async () => {
+          try {
+            const imgUrl = data.image_url + '?_t=' + Date.now();
+            const r = await fetch(imgUrl);
+            if (r.ok) {
+              showResult(URL.createObjectURL(await r.blob()));
+            } else {
+              showResult(data.image_url);
+            }
+          } catch {
+            showResult(data.image_url);
+          }
+        })();
+      } else if (data.status === 'cancelled') {
+        clearInterval(state.pollTimer);
+        clearInterval(state.elapsedTimer); clearInterval(state.msgTimer); state.msgTimer = null;
+        cancelAnimationFrame(state.genTimer); clearTimeout(state.genTimer); state.genTimer = null;
+        showToast(t('toast_cancelled'));
+        resetAll();
+      }
+    } catch {}
+  }, 1500);
+}
+
+// ════════════════════════════════════════
+//  SCREEN 3 — 结果预览
+// ════════════════════════════════════════
+
+function showResult(imageUrl) {
+  showScreen('screen-result');
+  const img = $('result-img');
+  const placeholder = $('result-placeholder');
+
+  if (!imageUrl) {
+    // 无 URL：只切页显示 spinner，等待 blob fetch 完成
+    img.style.display = 'none';
+    img.style.opacity = '0';
+    placeholder.style.display = 'flex';
+    placeholder.innerHTML = '<div style="text-align:center;"><div style="width:36px;height:36px;border:3px solid rgba(96,140,255,.15);border-top-color:#608cff;border-radius:50%;animation:spin-slow .7s linear infinite;margin:0 auto 10px;"></div><p style="font-size:13px;color:var(--text-weak);">图片加载中…</p></div>';
+    return;
+  }
+
+  state.resultUrl = imageUrl;
+  // blob URL 直接 assign（已在内存中），onload 触发 0 延迟渐显
+  img.style.opacity = '0';
+  img.style.display = 'none';
+  placeholder.style.display = 'flex';
+  placeholder.innerHTML = '<div style="text-align:center;"><div style="width:36px;height:36px;border:3px solid rgba(96,140,255,.15);border-top-color:#608cff;border-radius:50%;animation:spin-slow .7s linear infinite;margin:0 auto 10px;"></div><p style="font-size:13px;color:var(--text-weak);">图片加载中…</p></div>';
+  img.src = imageUrl;
+}
+
+// ── 保存照片到本地（原「确认打印」主按钮）────────────────
+$('btn-confirm').addEventListener('click', async () => {
+  const src = state.resultUrl;
+  if (!src) { showToast(t('toast_no_photo')); return; }
+  const btn = $('btn-confirm');
+  btn.disabled = true;
+  try {
+    const resp = await fetch(src + (src.includes('?') ? '&' : '?') + '_dl=' + Date.now());
+    if (!resp.ok) throw new Error('fetch failed');
+    const blob = await resp.blob();
+    const blobUrl = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = blobUrl;
+    link.download = 'kuaishou-photo-' + Date.now() + '.jpg';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    setTimeout(() => URL.revokeObjectURL(blobUrl), 3000);
+    showToast(t('toast_downloaded'));
+    if (!IS_PREVIEW && state.sessionId) {
+      fetch('/confirm/' + state.sessionId, { method: 'POST' }).catch(() => {});
+    }
+  } catch {
+    window.open(src, '_blank');
+    showToast('📸 长按图片保存');
+  } finally {
+    btn.disabled = false;
+  }
+});
+
+// ── 换个模版（重新生成同一张脸的 AI 合照）───────────────
+$('btn-download').addEventListener('click', async () => {
+  const btn = $('btn-download');
+  if (IS_PREVIEW) {
+    showToast('预览模式：模拟换模版...');
+    showScreen('screen-generating');
+    startElapsed(); startVisualProgress();
+    setTimeout(() => { showResult(state.previewURL); }, 5000);
+    return;
+  }
+  if (!state.sessionId) { showToast('❌ session 丢失，请重新上传'); return; }
+  btn.disabled = true;
+  btn.querySelector('span').textContent = '生成中…';
+  try {
+    const resp = await fetch('/reroll/' + state.sessionId, { method: 'POST' });
+    const data = await resp.json();
+    if (!data.ok) throw new Error(data.msg || '服务器错误');
+    // 切换到新 session，进入生成中页面
+    state.sessionId = data.session_id;
+    localStorage.setItem('ks_session_id', data.session_id);
+    showScreen('screen-generating');
+    startElapsed();
+    startVisualProgress();
+    startPolling();
+  } catch(e) {
+    showToast('❌ ' + (e.message || '换模版失败，请重试'));
+  } finally {
+    btn.disabled = false;
+    btn.querySelector('span').textContent = t('btn_download');
+  }
+});
+
+$('btn-cancel').addEventListener('click', async () => {
+  if (!IS_PREVIEW) {
+    try { await fetch('/cancel/' + state.sessionId, { method: 'POST' }); } catch {}
+  }
+  showToast(t('toast_abandoned'));
+  resetAll();
+});
+
+// ════════════════════════════════════════
+//  SCREEN 4 / 5
+// ════════════════════════════════════════
+
+$('btn-new-photo').addEventListener('click', () => resetAll());
+
+function showError(msg) {
+  clearAllTimers();
+  $('error-msg').textContent = msg;
+  showScreen('screen-error');
+}
+
+$('btn-retry').addEventListener('click', () => resetAll());
+$('btn-error-back').addEventListener('click', () => resetAll());
+
+// ════════════════════════════════════════
+//  通用清理
+// ════════════════════════════════════════
+
+function clearAllTimers() {
+  clearInterval(state.pollTimer);
+  cancelAnimationFrame(state.genTimer); clearTimeout(state.genTimer); state.genTimer = null;
+  clearInterval(state.elapsedTimer); clearInterval(state.msgTimer); state.msgTimer = null;
+}
+
+function resetAll() {
+  clearAllTimers();
+  state.sessionId = null;
+  state.resultUrl = null;
+  state.elapsedSec = 0;
+  localStorage.removeItem('ks_session_id');
+  $('elapsed-sec').textContent = '0s';
+  $('gen-bar').style.width = '0%';
+  $('gen-pct').textContent = '0%';
+
+  $('btn-confirm').disabled = false;
+  $('btn-confirm').textContent = t('btn_confirm');
+
+  $('result-img').src = '';
+  $('result-img').style.display = 'none';
+  $('result-placeholder').style.display = 'flex';
+  $('result-placeholder').innerHTML = '<p class="text-xs" style="color:var(--text-weak);" data-i18n="result_preview">合照预览图</p>';
+
+  resetUpload();
+  showScreen('screen-upload');
+}
+
+// ════════════════════════════════════════
+//  断线恢复：页面加载时检查 localStorage
+// ════════════════════════════════════════
+function tryRestoreSession() {
+  const savedId = localStorage.getItem('ks_session_id');
+  if (!savedId) return;
+
+  const removeLoading = () => {
+    const el = document.getElementById('restore-loading');
+    if (el) el.remove();
+  };
+
+  fetch('/result/' + savedId).then(r => r.json()).then(data => {
+    removeLoading();
+    if (data.status === 'ready') {
+      state.sessionId = savedId;
+      showToast('✅ 发现未完成的合照，正在恢复…');
+      showScreen('screen-result');
+      ;(async () => {
+        try {
+          const imgUrl = '/midput/' + savedId + '.jpg?_t=' + Date.now();
+          const r = await fetch(imgUrl);
+          if (r.ok) { showResult(URL.createObjectURL(await r.blob())); }
+          else { showResult('/midput/' + savedId + '.jpg'); }
+        } catch { showResult('/midput/' + savedId + '.jpg'); }
+      })();
+    } else if (data.status === 'waiting' || data.status === 'processing') {
+      state.sessionId = savedId;
+      showToast('🔄 正在恢复上次生成任务…');
+      showScreen('screen-generating');
+      startElapsed();
+      startVisualProgress();
+      startPolling();
+    } else {
+      // cancelled / confirmed / unknown → 清除，回首页
+      localStorage.removeItem('ks_session_id');
+      showScreen('screen-upload');
+    }
+  }).catch(() => {
+    removeLoading();
+    localStorage.removeItem('ks_session_id');
+    showScreen('screen-upload');
+  });
+}
+
+// 初始化语言
+setLang('zh');
+// 尝试恢复上次 session（仅后端模式）
+if (!IS_PREVIEW) {
+  const savedId = localStorage.getItem('ks_session_id');
+  if (savedId) {
+    // 有保存的 session：先隐藏所有屏幕，显示恢复检查中
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    const loadingEl = document.createElement('div');
+    loadingEl.id = 'restore-loading';
+    loadingEl.style.cssText = 'position:fixed;inset:0;background:var(--bg-page);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;z-index:100;';
+    loadingEl.innerHTML = '<div style="width:40px;height:40px;border:3px solid rgba(96,140,255,.2);border-top-color:#608cff;border-radius:50%;animation:spin-slow .8s linear infinite;"></div><p style="font-size:13px;color:var(--text-weak);">正在恢复中…</p>';
+    document.body.appendChild(loadingEl);
+    tryRestoreSession();
+  }
+  // 没有保存的 session：正常显示首页（默认 active 已经是 screen-upload）
+}
+</script>
+
+</body>
+</html>
